@@ -1,4 +1,4 @@
-﻿namespace BlueskySharp
+﻿namespace BlueskySharp.Response
 {
     internal record AuthRequest
     {
