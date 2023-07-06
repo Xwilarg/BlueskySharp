@@ -1,25 +1,30 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BlueskySharp.Tests
 {
     [TestClass]
-    public class UnitTest
+    public class UserTests
     {
-        private async Task<BlueskyClient> GetLoggedClientAsync()
+        private BlueskyClient _client;
+
+        public UserTests()
+        {
+            _client = new BlueskyClient();
+        }
+
+        [TestInitialize]
+        public async Task Authenticate()
         {
             string identifier = Environment.GetEnvironmentVariable("BLUESKY_IDENTIFIER")!;
             string password = Environment.GetEnvironmentVariable("BLUESKY_PASSWORD")!;
 
-            var client = new BlueskyClient();
-            await client.AuthenticateAsync(identifier, password);
-
-            return client;
+            await _client.AuthenticateAsync(identifier, password);
         }
 
         [TestMethod]
-        public async Task TestGetPosts()
+        public async Task TestGetProfile()
         {
-            var p = await (await GetLoggedClientAsync()).GetProfileAsync("theindra.nl");
+            var p = await _client.GetProfileAsync("theindra.nl");
 
             Assert.IsNotNull(p.Did);
             Assert.AreEqual("theindra.nl", p.Handle);
@@ -34,14 +39,6 @@ namespace BlueskySharp.Tests
             Assert.IsNotNull(p.Viewer);
             Assert.IsFalse(p.Viewer.Muted);
             Assert.IsFalse(p.Viewer.BlockedBy);
-        }
-
-        [TestMethod]
-        public async Task TestGetTimeline()
-        {
-            var p = await (await GetLoggedClientAsync()).GetTimelineAsync();
-
-            // TODO
         }
     }
 }
