@@ -1,5 +1,8 @@
-﻿using System.Net.Http.Json;
+﻿using BlueskySharp.Response;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Web;
 
 namespace BlueskySharp
 {
@@ -14,20 +17,32 @@ namespace BlueskySharp
             };
         }
 
-        public async Task AuthentificateAsync(string identifier, string password)
+        public async Task AuthentifiateAsync(string identifier, string password)
         {
-            var auth = new Auth()
+            var auth = new AuthRequest()
             {
                 Identifier = identifier,
                 Password = password
             };
             var resp = await HttpClient.PostAsJsonAsync($"{_url}/xrpc/com.atproto.server.createSession", auth, _options);
-            var res = await resp.Content.ReadAsStringAsync();
-            Console.WriteLine(res);
             if (!resp.IsSuccessStatusCode)
             {
-                throw new NotImplementedException();
+                var msg = JsonSerializer.Deserialize<ErrorResponse>(await resp.Content.ReadAsStringAsync(), _options).Message;
+                throw new Exception(msg);
             }
+            var res = JsonSerializer.Deserialize<AuthResponse>(await resp.Content.ReadAsStringAsync(), _options);
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", res.AccessJwt);
+        }
+
+        public async Task<Profile> GetProfile(string actor)
+        {
+            var resp = await HttpClient.GetAsync($"{_url}/xrpc/app.bsky.actor.getProfile?actor={HttpUtility.UrlEncode(actor)}");
+            if (!resp.IsSuccessStatusCode)
+            {
+                var msg = JsonSerializer.Deserialize<ErrorResponse>(await resp.Content.ReadAsStringAsync(), _options).Message;
+                throw new Exception(msg);
+            }
+            return JsonSerializer.Deserialize<Profile>(await resp.Content.ReadAsStringAsync(), _options);
         }
 
         ~BlueskyClient()
@@ -35,14 +50,14 @@ namespace BlueskySharp
             HttpClient.Dispose();
         }
 
-        public HttpClient HttpClient { private set; get; } = new();
+        public HttpClient HttpClient { set; private get; } = new();
         private JsonSerializerOptions _options;
-        private string _url;
+        private readonly string _url;
     }
 
-    internal record Auth
+    public record ErrorResponse
     {
-        public string Identifier { set; get; }
-        public string Password { set; get; }
+        public string Error { set; get; }
+        public string Message { set; get; }
     }
 }
