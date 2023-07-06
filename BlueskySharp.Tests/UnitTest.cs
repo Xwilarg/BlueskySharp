@@ -5,8 +5,7 @@ namespace BlueskySharp.Tests
     [TestClass]
     public class UnitTest
     {
-        [TestMethod]
-        public async Task TestGetPosts()
+        private async Task<BlueskyClient> GetLoggedClientAsync()
         {
             string identifier = Environment.GetEnvironmentVariable("BLUESKY_IDENTIFIER")!;
             string password = Environment.GetEnvironmentVariable("BLUESKY_PASSWORD")!;
@@ -14,8 +13,15 @@ namespace BlueskySharp.Tests
             var client = new BlueskyClient();
             await client.AuthentifiateAsync(identifier, password);
 
-            var p = await client.GetProfile("theindra.nl");
+            return client;
+        }
 
+        [TestMethod]
+        public async Task TestGetPosts()
+        {
+            var p = await (await GetLoggedClientAsync()).GetProfileAsync("theindra.nl");
+
+            Assert.IsNotNull(p.Did);
             Assert.AreEqual("theindra.nl", p.Handle);
             Assert.AreEqual("Indra", p.DisplayName);
             Assert.IsNotNull(p.Description);
@@ -28,6 +34,14 @@ namespace BlueskySharp.Tests
             Assert.IsNotNull(p.Viewer);
             Assert.IsFalse(p.Viewer.Muted);
             Assert.IsFalse(p.Viewer.BlockedBy);
+        }
+
+        [TestMethod]
+        public async Task TestGetTimeline()
+        {
+            var p = await (await GetLoggedClientAsync()).GetTimelineAsync();
+
+            // TODO
         }
     }
 }
