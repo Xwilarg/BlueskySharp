@@ -17,7 +17,7 @@ namespace BlueskySharp
             };
         }
 
-        public async Task AuthentifiateAsync(string identifier, string password)
+        public async Task AuthenticateAsync(string identifier, string password)
         {
             var auth = new AuthRequest()
             {

@@ -11,7 +11,7 @@ namespace BlueskySharp.Tests
             string password = Environment.GetEnvironmentVariable("BLUESKY_PASSWORD")!;
 
             var client = new BlueskyClient();
-            await client.AuthentifiateAsync(identifier, password);
+            await client.AuthenticateAsync(identifier, password);
 
             return client;
         }
