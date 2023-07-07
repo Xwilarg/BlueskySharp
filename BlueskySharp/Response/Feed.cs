@@ -56,9 +56,14 @@ namespace BlueskySharp.Response
         public string[] Labels { set; get; }
     }
 
+    public record FeedViewPost
+    {
+        public Post Post { get; set; }
+    }
+
     public record Timeline
     {
         public string Cursor { set; get; }
-        public Post[] Posts { set; get; }
+        public FeedViewPost[] Feed { set; get; }
     }
 }

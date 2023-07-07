@@ -26,7 +26,7 @@ namespace BlueskySharp.Tests
         {
             var t = await _client.GetTimelineAsync();
 
-            Assert.IsTrue(t.Posts.Length > 0);
+            Assert.IsTrue(t.Feed.Length > 0);
         }
     }
 }
